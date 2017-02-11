@@ -1,11 +1,13 @@
 .Rproj.user
 .Rhistory
-.RData
-.rds
-.html
+*.RData
+*.rds
+*.html
+*.Rproj
 Spatial_Layers/
 Data/
 Packages/
 Figures/
 Twilights/
 Results/
+Functions/
