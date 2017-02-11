@@ -1,0 +1,11 @@
+.Rproj.user
+.Rhistory
+.RData
+.rds
+.html
+Spatial_Layers/
+Data/
+Packages/
+Figures/
+Twilights/
+Results/
