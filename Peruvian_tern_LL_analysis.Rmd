@@ -416,7 +416,7 @@ proposal.z[[i]] <- mvnorm(S=diag(c(0.0025,0.0025)),n=nlocation(z0[[i]]))
 ```
 
 Here we run the model
-```{r}
+```{r eval = FALSE}
 a <- Sys.time()
  fit <- xsum <- zsum <- vector('list', nBirds)
  
@@ -463,6 +463,14 @@ fit[[i]] <- estelleMetropolis(model = model[[i]],
 Sys.time()- a
 ```
 
+```{r echo = FALSE, eval = FALSE}
+saveRDS(fit, paste0("Data/MCMCfit/fit_",format(Sys.Date(),"%b_%d_%Y"),".rds"))
+```
+
+```{r echo = FALSE}
+fit <- readRDS("Data/MCMCfit/fit_Feb_13_2017.rds")
+```
+
 ### Summarizing the results 
 ```{r}
 # This step makes an empty raster #
@@ -492,29 +500,37 @@ Sp[[i]] <- slices(type="primary",
 }
 ```
 
-Read in a function that I wrote that is currently a work in progress. 
-```{r}
-source("Functions/MigSchedules_copy.R")
+```{r echo = FALSE, message = FALSE}
+library(mth, lib.loc = "C:/Users/hallworthm/R_Library")
 ```
 
-```{r echo = FALSE}
-knitr::opts_knit$set(progress=FALSE)
+```{r, dpi = 600}
+Schedule <- lapply(S, # object
+                   mth::MigSchedule, # function
+                   prob = 0.95,
+                   known.breed = c("2015-09-01","2015-10-01"),
+                   known.winter = c("2016-01-01","2016-02-01"),
+						       rm.lat.equinox = TRUE,
+						       days.omit = 3,
+						       progress = FALSE,
+						       plot = TRUE,
+						       plot.legend = FALSE,
+						       latAllow = c(0.5,2))
+
 ```
 
-```{r}
-Schedule <- vector('list',nBirds)
+Here we look at the number of shading events within each day. Shading events should go up when they are nesting / incubating. If there two periods when shading events are quite high - it could mean that they are nesting twice. However, there may be many explainations for the shading events (weather, diving, etc.)
+
+```{r, dpi = 600}
+shading <- vector('list',nBirds)
+
 for(i in 1:nBirds){
-Schedule[[i]] <- MigSchedule(MCMC = S[[i]], prob = 0.95,
-                             known.breed = c("2015-09-01","2015-10-01"),
-                             known.winter = c("2016-01-01","2016-02-01"),
-						                 rm.lat.equinox = TRUE,
-						                 days.omit = 10,
-						                 progress = TRUE,
-						                 plot = TRUE,
-						                 plot.legend = FALSE,
-						                 latAllow = c(0.5,2))
+shading[[i]] <- mth::CountShadingEvents(lightdata = Terndata[[i]],
+                                        MCMCresult = S[[i]],
+                                        threshold = 1,
+                                        plot = TRUE)
 }
-```
+``` 
 
 ```{r echo = FALSE, eval = FALSE}
 birds <- cols <- vector('list',nBirds)
