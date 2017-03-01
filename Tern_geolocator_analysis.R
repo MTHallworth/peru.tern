@@ -478,19 +478,19 @@ Sp[[i]] <- slices(type="primary",
                  right = FALSE)
 }
 
-
 source("Functions/MigSchedules_copy.R")
+
 Schedule <- vector('list',nBirds)
 for(i in 1:nBirds){
 Schedule[[i]] <- MigSchedule(MCMC = S[[i]], prob = 0.95,
-                                    known.breed = c("2015-09-01","2015-10-01"),
-                                    known.winter = c("2016-01-01","2016-02-01"),
+                                    known.breed = c("2015-09-01","2015-12-01"),
+                                    known.winter = c("2016-03-01","2016-04-01"),
 						rm.lat.equinox = TRUE,
 						days.omit = 10,
 						progress = TRUE,
 						plot = TRUE,
 						plot.legend = FALSE,
-						latAllow = c(0.5,2))
+						latAllow = c(0.5,5))
 }
 
 
