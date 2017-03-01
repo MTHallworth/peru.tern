@@ -4,6 +4,8 @@
 *.rds
 *.html
 *.Rproj
+*.kml
+*.kmz
 Spatial_Layers/
 Data/
 Packages/
