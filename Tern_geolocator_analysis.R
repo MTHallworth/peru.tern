@@ -124,13 +124,42 @@ twlEdit <- lapply(twlEdit,subset,Deleted == FALSE)
 ##     write.csv(twlEdit[[i]],paste0("Twilights/",BirdId[[i]],".csv"),row.names = FALSE)
 ## }
 
+## ------------------------------------------------------------------------
+# determine when they were at the capture location using light-data #
+Times <- seq(from = Terndata[[1]]$Date[1], 
+             to = Terndata[[1]]$Date[length(Terndata[[1]]$Date)], 
+             by = "day")
+  
+rise <- rep(c(TRUE, FALSE), length(Times))
+
+
+# making predicted twilight times given location and zenith #
+
+KnownTwl <- data.frame(Twilight = twilight(rep(Times, each = 2),
+                                                 lon = CapLocs[1,1], 
+                                                 lat = CapLocs[1,2], 
+                                                 rise = rise,
+                                                 zenith = 95),
+                         Rise = rise)
+ 
+for(i in 1:nBirds){
+lightImage(Terndata[[i]],
+             offset = 19, 
+             zlim = c(0,64), 
+             main = "Light Image") 
+  
+  tsimagePoints(KnownTwl$Twilight, 
+                offset = 19, 
+                pch = 16, cex = 0.5, 
+                col = ifelse(KnownTwl$Rise, "blue", "red"))
+}
 
 ## ------------------------------------------------------------------------
 # Create a vector with the dates known to be at deployment #
 calibration.dates <- vector('list',nBirds)
 
 for(i in 1:nBirds){
-calibration.dates[[i]] <- c(Terndata[[i]][1,1],as.POSIXct("2015-09-18",tz="GMT"))
+calibration.dates[[i]] <- c(Terndata[[i]][1,1],as.POSIXct("2016-01-01",tz="GMT"))
 }
 
 ## ------------------------------------------------------------------------
@@ -214,7 +243,7 @@ for(i in 2:nBirds){
 
 ## ------------------------------------------------------------------------
 # Create empty vectors to store objects #
-d.twl<-path<-vector('list',nBirds)
+path<-vector('list',nBirds)
 
 zenith0<-zenith1<-rep(NA,nBirds)
 
@@ -322,7 +351,7 @@ crs(Americas)<-WGS84
 crs(PETEdist)<-WGS84
 crs(PETEdistBuffer) <- WGS84
 ## ------------------------------------------------------------------------
-## Define mask for Ovenbird distribution
+## Define mask for Peruvian Tern distribution + Buffer
  is.dist <- distribution.mask(shape=PETEdistBuffer,
                              xlim = xlim,
                              ylim = ylim,
@@ -341,7 +370,7 @@ log.prior <- function(p) {
 fixedx <- vector('list',nBirds)
 for(i in 1:nBirds){
 fixedx[[i]] <- rep(FALSE, length(twlEdit[[i]]$Twilight))
-fixedx[[i]][1:60]<-TRUE
+fixedx[[i]][1:max(which(twlEdit[[i]][,1] < "2016-01-01"))]<-TRUE
 fixedx[[i]][(length(fixedx[[i]])-60):length(fixedx[[i]])]<-TRUE
 x0[[i]][fixedx[[i]],1] <- CapLocs[i,1]
 x0[[i]][fixedx[[i]],2] <- CapLocs[i,2]
